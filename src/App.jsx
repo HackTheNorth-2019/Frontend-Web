@@ -5,22 +5,37 @@ import "firebase/auth";
 import { ThemeProvider } from 'emotion-theming'
 import { Button, Box } from "rebass";
 import firebaseConfig from "./firebaseConfig.js";
-import { Image } from "rebass";
+import { FirebaseComponentDisplay } from "./components/Firebase/FirebaseComponentDisplay";
+
+const colors = {
+  blue1: "#3D5CFF",
+  blue2: "#617AFF",
+  blue3: "#8DA0FF",
+
+  purple1: "#7B3DFF",
+  purple2: "#9F72FF",
+  purple3: "#C6ABFF",
+
+  black1: "#414141",
+  black2: "#787878",
+  black3: "#D0D0D0",
+
+  white: "#F3F3F3"
+}
 
 const theme = {
   fontSizes: [
     12, 14, 16, 24, 32, 48, 64
   ],
-  colors: {
-    primary: '#3D5CFF',
-    gray: '#f6f6ff',
-  },
+  colors: colors,
   buttons: {
     primary: {
-      color: 'primary',
+      color: 'blue1',
       bg: 'transparent',
       boxShadow: 'inset 0 0 0 2px',
-
+      '&:hover': {
+        color: 'purple2'
+      }
     },
     outline: {
       color: 'primary',
@@ -32,26 +47,6 @@ const theme = {
 
 
 const firebaseApp = firebase.initializeApp(firebaseConfig);
-
-class FirebaseComponentDisplay extends Component {
-  constructor(props) {
-    super(props);
-    this.props = props;
-  }
-  render() {
-    return (
-      <>
-        <p>Hello, {this.props.user}</p>
-        <Image
-          src={this.props.image}
-          sx={{
-            borderRadius: 8
-          }}
-        />
-      </>
-    );
-  }
-}
 
 class ImageUpload extends Component {
   constructor(props) {

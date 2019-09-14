@@ -3,12 +3,6 @@ import { Label, Input, Select, Textarea, Radio, Checkbox } from "@rebass/forms";
 import { Box, Flex, Button, Text } from "rebass";
 import * as firebase from "firebase";
 
-function verifyDate(str) {
-  var date_regex = /^(0[1-9]|1[0-2])\/(0[1-9]|1\d|2\d|3[01])\/(19|20)\d{2}$/;
-  if (!date_regex.test(str)) {
-    return false;
-  }
-}
 
 export class NewProject extends Component {
   constructor(props) {
@@ -19,6 +13,12 @@ export class NewProject extends Component {
       currentExpenditure: "",
       budget: ""
     };
+    this._handleSubmit = this._handleSubmit.bind(this)
+  }
+
+  async _handleSubmit(){
+    var db = firebase.firestore();
+    await db.collection(this.props.userID).doc(this.state.name).set(this.state)
   }
 
   render() {
@@ -26,12 +26,27 @@ export class NewProject extends Component {
       <Box
         as="form"
         onSubmit={e => {
-          e.preventDefault();
-
-          console.log(this.state);
+          e.preventDefault(); 
+          if(this.state.name.length <= 0 || this.state.deadline.length <= 0 || this.state.currentExpenditure.length <= 0 || this.state.budget.length <= 0){
+              alert("Fill out all forms.")
+          } else {
+            console.log(this.state);
+            this._handleSubmit()
+          }
+          
         }}
         py={3}
       >
+        <Text
+          width={1}
+          fontSize={[3]}
+          css={{ margin: 0 }}
+          fontWeight="bold"
+          color="primary"
+        >
+          Project: <Text css={{display:'inline'}} fontWeight="500">{this.state.name}</Text>
+        </Text>
+        <hr/>
         <Text
           width={1}
           fontSize={[3]}
@@ -58,7 +73,7 @@ export class NewProject extends Component {
               id="name"
               name="name"
               placeholder="MM/DD/YYYY"
-              onChange={e => this.setState({ name: e.target.value })}
+              onChange={e => this.setState({ deadline: e.target.value })}
             />
           </Box>
         </Flex>
@@ -93,7 +108,9 @@ export class NewProject extends Component {
               onChange={e => this.setState({ budget: e.target.value })}
             />
           </Box>
+          
         </Flex>
+        <Button type="submit">Submit</Button>
       </Box>
     );
   }

@@ -1,9 +1,11 @@
 import React from 'react'
-import {Text} from 'rebass'
+import {Text, Image} from 'rebass'
 
 const App: React.FC = () => {
   return (
+    <>
     <Text>Hi</Text>
+    </>
   );
 }
 

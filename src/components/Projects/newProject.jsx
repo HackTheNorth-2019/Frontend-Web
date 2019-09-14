@@ -12,8 +12,7 @@ export class NewProject extends Component {
       name: "",
       deadline: "",
       currentExpenditure: "",
-      budget: "",
-      logoLink: ""
+      budget: ""
     };
     this._handleSubmit = this._handleSubmit.bind(this)
   }
@@ -79,7 +78,7 @@ export class NewProject extends Component {
             />
           </Box>
         </Flex>
-        <ImageUpload intent="project" projectName={this.state.name} userID={this.props.userID} imageChangeCallback={(file, readingLink) => {this.setState({logoLink: readingLink})}} imageUploadText="Upload Logo"/>
+        <ImageUpload intent="project" projectName={this.state.name} userID={this.props.userID} imageChangeCallback={(file, readingLink, firebasePath) => {this.setState({logoImage: readingLink, logoFirebasePath: firebasePath})}} imageUploadText="Upload Logo"/>
         <Text
           width={1}
           fontSize={[3]}

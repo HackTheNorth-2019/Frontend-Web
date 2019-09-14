@@ -40,7 +40,7 @@ export class ImageUpload extends Component {
         file: file,
         imagePreviewUrl: reader.result
       });
-      this.props.imageChangeCallback(file, reader.result)
+      this.props.imageChangeCallback(file, reader.result,`${this.props.userID}/${this.props.projectName}/projectImage.${file.name.split(".").slice(-1)}`)
     };
     console.log(file)
     console.log(reader.result)

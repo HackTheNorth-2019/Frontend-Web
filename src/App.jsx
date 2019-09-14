@@ -8,6 +8,7 @@ import firebaseConfig from "./firebaseConfig.js";
 import { FirebaseComponentDisplay } from "./components/Firebase/FirebaseComponentDisplay";
 import { ImageUpload } from "./components/Firebase/ImageUpload";
 import { NewProject } from "./pages/Projects/newProject";
+import { NewExpenditure } from './pages/Expenses/newExpenditure'
 import { colors } from "./styles/colors";
 
 const theme = {
@@ -124,7 +125,9 @@ class App extends Component {
             ) : (
               ""
             )}
-            {user ? <NewProject /> : ""}
+            {user ? <NewProject userID={user.uid}/> : ""}
+
+            {user ? <NewExpenditure userID={user.uid} /> : ""}
 
             {/* {user ? <ImageViewer userID={user.uid} /> : ""} */}
           </Box>

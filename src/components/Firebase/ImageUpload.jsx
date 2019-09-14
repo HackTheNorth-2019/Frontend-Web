@@ -36,9 +36,7 @@ export class ImageUpload extends Component {
       });
     };
     console.log(file)
-    var mountainsRef = await storageRef
-      .child(`${this.props.userID}/${file.name}`)
-      .put(file);
+    this.props.imageChangeCallback(file)
     reader.readAsDataURL(file);
   }
   render() {

@@ -9,12 +9,11 @@ export class NewExpenditure extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      name: "",
-      deadline: "",
-      currentExpenditure: "",
-      budget: "",
       receipt: null,
-      projects: []
+      projects: [],
+      selectedProject: "",
+      recurring: "false",
+      name: ""
     };
     this.projects = [];
     console.log(this.props.userID);
@@ -24,12 +23,26 @@ export class NewExpenditure extends Component {
 
   async _handleSubmit() {
     var db = firebase.firestore();
+    console.log(this.props.userID);
+    console.log(this.state.selectedProject);
+    console.log(
+      this.state.selectedProject
+        .split("/")
+        .slice(1)
+        .join("")
+    );
+    console.log(this.state.name)
     await db
       .collection(this.props.userID)
-      .doc(this.state.name)
+      .doc(
+        this.state.selectedProject
+          .split("/")
+          .slice(1)
+          .join("")
+      )
       .collection("Expenditure")
       .doc(this.state.name)
-      .set(this.state);
+      .set({recurring: this.state.recurring});
   }
 
   async _getProjects() {
@@ -38,12 +51,17 @@ export class NewExpenditure extends Component {
 
     await this.setState({
       projects: coll._snapshot.docChanges.map(project => {
-          console.log(project.doc.proto.name);
-       return project.doc.proto.name
-        
+        return project.doc.proto.name
+          .split("/")
+          .slice(-2)
+          .join("/");
       })
     });
     console.log(this.state);
+    console.log(coll._snapshot.docChanges[0].doc.proto.name.split('/').slice(-1))
+    await this.setState({
+        selectedProject: coll._snapshot.docChanges[0].doc.proto.name.split('/').slice(-1)
+    })
   }
 
   UNSAFE_componentWillMount() {
@@ -57,11 +75,9 @@ export class NewExpenditure extends Component {
         onSubmit={e => {
           e.preventDefault();
           if (
-            this.state.name.length <= 0 ||
-            this.state.deadline.length <= 0 ||
-            this.state.currentExpenditure.length <= 0 ||
-            this.state.budget.length <= 0 ||
-            this.state.receipt == null
+            this.state.receipt == null ||
+            typeof this.state.recurring == "string" ||
+            this.state.name.length == 0
           ) {
             alert("Fill out all forms.");
           } else {
@@ -83,28 +99,26 @@ export class NewExpenditure extends Component {
         <br />
         <Flex mx={-2} mb={3}>
           <Box width={[1 / 4, 1 / 2]} px={2}>
-            <Box>
-              <Label htmlFor="country">Country</Label>
-              <Select id="country" name="country" defaultValue="United States">
-                {this.state.projects.map(project => <option>{project}</option>)}
+              <Label htmlFor="country">Project</Label>
+              <Select
+                onChange={e => {
+                  this.setState({ selectedProject: e.target.value });
+                  console.log(this.state);
+                }}
+              >
+                {this.state.projects.map(project => (
+                  <option>{project}</option>
+                ))}
               </Select>
-            </Box>
-            <Label htmlFor="name">Name</Label>
-            <Input
-              id="name"
-              name="name"
-              placeholder="Project Name"
-              onChange={e => this.setState({ name: e.target.value })}
-            />
-          </Box>
-          <Box width={(1 / 4, 1 / 2)} px={2}>
-            <Label htmlFor="name">Deadline</Label>
-            <Input
-              id="name"
-              name="name"
-              placeholder="MM/DD/YYYY"
-              onChange={e => this.setState({ name: e.target.value })}
-            />
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                name="name"
+                placeholder="Name of expense"
+                onChange={e => {
+                    this.setState({ name: e.target.value });
+                }}
+              />
           </Box>
         </Flex>
         <Text
@@ -119,24 +133,19 @@ export class NewExpenditure extends Component {
         <br />
         <Flex mx={-2} mb={3}>
           <Box width={1 / 4} px={2}>
-            <Label htmlFor="name">Current Expenditure</Label>
-            <Input
-              id="name"
-              name="name"
-              placeholder="$500"
-              onChange={e =>
-                this.setState({ currentExpenditure: e.target.value })
-              }
-            />
-          </Box>
-          <Box width={1 / 4} px={2}>
-            <Label htmlFor="name">Budget</Label>
-            <Input
-              id="name"
-              name="name"
-              placeholder="$13 000"
-              onChange={e => this.setState({ budget: e.target.value })}
-            />
+            <Label htmlFor="name">Recurring Payment?</Label>
+            <Label>
+              <Checkbox
+                id="recurring"
+                name="recurring"
+                onClick={() =>
+                  this.setState(prevState => ({
+                    recurring: !prevState.recurring
+                  }))
+                }
+              />
+              Recurring
+            </Label>
           </Box>
         </Flex>
         <ImageUpload

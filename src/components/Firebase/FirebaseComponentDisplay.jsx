@@ -10,7 +10,9 @@ export class FirebaseComponentDisplay extends Component {
       <p>Hello, {this.props.user}</p>
       <Image src={this.props.image} sx={{
         borderRadius: 8,
-        marginBottom: 2
+        marginBottom: 2,
+            width: ['5%' ],
+            borderRadius: 8,
       }} />
     </>);
   }

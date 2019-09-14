@@ -13,7 +13,8 @@ export class NewExpenditure extends Component {
       projects: [],
       selectedProject: "",
       recurring: "false",
-      name: ""
+      name: "",
+      receipt: ""
     };
     this.projects = [];
     console.log(this.props.userID);
@@ -42,7 +43,7 @@ export class NewExpenditure extends Component {
       )
       .collection("Expenditure")
       .doc(this.state.name)
-      .set({recurring: this.state.recurring});
+      .set({recurring: this.state.recurring, receipt: this.state.receipt});
   }
 
   async _getProjects() {
@@ -150,7 +151,7 @@ export class NewExpenditure extends Component {
         </Flex>
         <ImageUpload
           userID={this.props.userID}
-          imageChangeCallback={e => this.setState({ receipt: e.name })}
+          imageChangeCallback={(e, img) => this.setState({ receipt: e.name, receipt: img })}
         />
         <Button type="submit">Submit</Button>
       </Box>

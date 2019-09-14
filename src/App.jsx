@@ -7,9 +7,11 @@ import { Button, Box } from "rebass";
 import firebaseConfig from "./firebaseConfig.js";
 import { FirebaseComponentDisplay } from "./components/Firebase/FirebaseComponentDisplay";
 import { ImageUpload } from "./components/Firebase/ImageUpload";
-import { NewProject } from "./pages/Projects/newProject";
-import { NewExpenditure } from './pages/Expenses/newExpenditure'
+import { NewProject } from "./components/Projects/newProject";
+import { ProjectCard } from "./components/Projects/projectCard"
+import { NewExpenditure } from "./pages/Expenses/newExpenditure";
 import { colors } from "./styles/colors";
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 
 const theme = {
   fontSizes: [12, 14, 16, 24, 32, 48, 64],
@@ -41,7 +43,7 @@ const theme = {
     textarea: {},
     label: {},
     radio: { color: "blue1" },
-    checkbox: { color: "blue1"}
+    checkbox: { color: "blue1" }
   }
 };
 
@@ -98,41 +100,20 @@ class App extends Component {
     const { user, signOut, signInWithGoogle } = this.props;
 
     return (
-      <ThemeProvider theme={theme}>
-        <div className="App">
-          <Box>
-            {user ? (
-              <FirebaseComponentDisplay
-                user={user.displayName}
-                image={user.photoURL}
-              />
-            ) : (
-              <p>Please sign in.</p>
-            )}
-            <br />
-            {user ? (
-              <Button mr={2} onClick={signOut}>
-                Sign out
-              </Button>
-            ) : (
-              <Button mr={2} onClick={signInWithGoogle}>
-                Sign in
-              </Button>
-            )}
+      <Router>
+        <Route
+          path="/"
+          exact
+          component={() => (
+            <AppIndex
+              user={user}
+              signOut={signOut}
+              signInWithGoogle={signInWithGoogle}
+            />
+          )}
+        />
 
-            {user ? (
-              <ImageUpload userID={user.uid} css={{ margin: "2rem" }} />
-            ) : (
-              ""
-            )}
-            {user ? <NewProject userID={user.uid}/> : ""}
-
-            {user ? <NewExpenditure userID={user.uid} /> : ""}
-
-            {/* {user ? <ImageViewer userID={user.uid} /> : ""} */}
-          </Box>
-        </div>
-      </ThemeProvider>
+      </Router>
     );
   }
 }
@@ -147,3 +128,96 @@ export default withFirebaseAuth({
   providers,
   firebaseAppAuth
 })(App);
+class AppIndex extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+
+    }
+    this._getProjects = this._getProjects.bind(this)
+    this._getProjects()
+  }
+
+  _getProjects = async ()=> {
+    // var db = await firebase.firestore();
+    // let coll = await db.collection(this.props.user.uid).get();
+
+    // this.setState({
+    //   projects: coll._snapshot.docChanges.map(project => {
+    //     return project.doc.proto.name
+    //       .split("/")
+    //       .slice(-2)
+    //       .join("/");
+    //   })
+    // });
+    // console.log(coll._snapshot.docChanges[0].doc.proto.name.split('/').slice(-1))
+    // console.log(this.state)
+    console.log(this.props.user)
+  }
+
+  // UNSAFE_componentWillMount = async () => {
+  //   var db = await firebase.firestore();
+  //   let coll = await db.collection(this.props.user.uid).get();
+
+  //   this.setState({
+  //     projects: coll._snapshot.docChanges.map(project => {
+  //       return project.doc.proto.name
+  //         .split("/")
+  //         .slice(-2)
+  //         .join("/");
+  //     })
+  //   });
+  //   console.log(coll._snapshot.docChanges[0].doc.proto.name.split('/').slice(-1))
+  //   console.log(this.state)
+  // }
+
+  render() {
+    return (
+      <ThemeProvider theme={theme}>
+        <div className="App">
+          <Box>
+            {this.props.user ? (
+              <FirebaseComponentDisplay
+                user={this.props.user.displayName}
+                image={this.props.user.photoURL}
+              />
+            ) : (
+              <p>Please sign in.</p>
+            )}
+            <br />
+            {this.props.user ? (
+              <Button mr={2} onClick={this.props.signOut}>
+                Sign out
+              </Button>
+            ) : (
+              <Button mr={2} onClick={this.props.signInWithGoogle}>
+                Sign in
+              </Button>
+            )}
+
+            {this.props.user ? (
+              <ImageUpload
+                userID={this.props.user.uid}
+                css={{ margin: "2rem" }}
+              />
+            ) : (
+              ""
+            )}
+            {this.props.user ? <NewProject userID={this.props.user.uid} /> : ""}
+
+            {this.props.user ? (
+              <NewExpenditure userID={this.props.user.uid} />
+            ) : (
+              ""
+            )}
+            {this.props.user ? (
+              <ProjectCard userID = {this.props.user.uid}/>
+            ) : (
+              ""
+            )}
+          </Box>
+        </div>
+      </ThemeProvider>
+    );
+  }
+}

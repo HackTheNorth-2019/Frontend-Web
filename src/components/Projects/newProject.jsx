@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Label, Input, Select, Textarea, Radio, Checkbox } from "@rebass/forms";
+import { ImageUpload } from "../../components/Firebase/ImageUpload";
 import { Box, Flex, Button, Text } from "rebass";
 import * as firebase from "firebase";
 
@@ -11,7 +12,8 @@ export class NewProject extends Component {
       name: "",
       deadline: "",
       currentExpenditure: "",
-      budget: ""
+      budget: "",
+      logoLink: ""
     };
     this._handleSubmit = this._handleSubmit.bind(this)
   }
@@ -77,6 +79,7 @@ export class NewProject extends Component {
             />
           </Box>
         </Flex>
+        <ImageUpload intent="project" projectName={this.state.name} userID={this.props.userID} imageChangeCallback={(file, readingLink) => {this.setState({logoLink: readingLink})}} imageUploadText="Upload Logo"/>
         <Text
           width={1}
           fontSize={[3]}

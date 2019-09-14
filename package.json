@@ -5,11 +5,11 @@
   "dependencies": {
     "@types/jest": "24.0.18",
     "@types/node": "12.7.5",
-    "@types/react": "16.9.2",
     "@types/react-dom": "16.9.0",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-scripts": "3.1.1",
+    "rebass": "^4.0.5",
     "typescript": "3.6.3"
   },
   "scripts": {
@@ -32,5 +32,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/react": "^16.9.2",
+    "@types/rebass": "^4.0.0"
   }
 }

@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import {ImageUpload} from "../../components/Firebase/ImageUpload"
+import { ImageUpload } from "../../components/Firebase/ImageUpload";
 import { Label, Input, Select, Textarea, Radio, Checkbox } from "@rebass/forms";
 import { Box, Flex, Button, Text } from "rebass";
 import * as firebase from "firebase";
@@ -13,9 +13,41 @@ export class NewExpenditure extends Component {
       deadline: "",
       currentExpenditure: "",
       budget: "",
-      receipt: null
-
+      receipt: null,
+      projects: []
     };
+    this.projects = [];
+    console.log(this.props.userID);
+    this._handleSubmit = this._handleSubmit.bind(this);
+    this._getProjects = this._getProjects.bind(this);
+  }
+
+  async _handleSubmit() {
+    var db = firebase.firestore();
+    await db
+      .collection(this.props.userID)
+      .doc(this.state.name)
+      .collection("Expenditure")
+      .doc(this.state.name)
+      .set(this.state);
+  }
+
+  async _getProjects() {
+    var db = firebase.firestore();
+    let coll = await db.collection(this.props.userID).get();
+
+    await this.setState({
+      projects: coll._snapshot.docChanges.map(project => {
+          console.log(project.doc.proto.name);
+       return project.doc.proto.name
+        
+      })
+    });
+    console.log(this.state);
+  }
+
+  UNSAFE_componentWillMount() {
+    this._getProjects();
   }
 
   render() {
@@ -23,14 +55,20 @@ export class NewExpenditure extends Component {
       <Box
         as="form"
         onSubmit={e => {
-            e.preventDefault(); 
-            if(this.state.name.length <= 0 || this.state.deadline.length <= 0 || this.state.currentExpenditure.length <= 0 || this.state.budget.length <= 0 || this.state.receipt == null){
-                alert("Fill out all forms.")
-            } else {
-              console.log(this.state);
-            }
-            
-          }}
+          e.preventDefault();
+          if (
+            this.state.name.length <= 0 ||
+            this.state.deadline.length <= 0 ||
+            this.state.currentExpenditure.length <= 0 ||
+            this.state.budget.length <= 0 ||
+            this.state.receipt == null
+          ) {
+            alert("Fill out all forms.");
+          } else {
+            console.log(this.state);
+          }
+          this._handleSubmit();
+        }}
         py={3}
       >
         <Text
@@ -44,9 +82,13 @@ export class NewExpenditure extends Component {
         </Text>
         <br />
         <Flex mx={-2} mb={3}>
-        
-
           <Box width={[1 / 4, 1 / 2]} px={2}>
+            <Box>
+              <Label htmlFor="country">Country</Label>
+              <Select id="country" name="country" defaultValue="United States">
+                {this.state.projects.map(project => <option>{project}</option>)}
+              </Select>
+            </Box>
             <Label htmlFor="name">Name</Label>
             <Input
               id="name"
@@ -97,7 +139,10 @@ export class NewExpenditure extends Component {
             />
           </Box>
         </Flex>
-        <ImageUpload userID={this.props.userID} imageChangeCallback={e=> this.setState({receipt: e.name})}/>
+        <ImageUpload
+          userID={this.props.userID}
+          imageChangeCallback={e => this.setState({ receipt: e.name })}
+        />
         <Button type="submit">Submit</Button>
       </Box>
     );

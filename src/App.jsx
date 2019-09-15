@@ -16,7 +16,7 @@ import { LandingPage } from "./pages/General/landing";
 import { colors } from "./styles/colors";
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import { thisExpression } from "@babel/types";
-import Fade from 'react-reveal/Fade';
+import Fade from "react-reveal/Fade";
 
 const theme = {
   fontSizes: [12, 14, 16, 24, 32, 48, 64],
@@ -112,9 +112,14 @@ export default withFirebaseAuth({
 class AppIndex extends Component {
   constructor(props) {
     super(props);
-    this.state = { projects: [], mappedProjects: [], loading: true, isTyping: true };
+    this.state = {
+      projects: [],
+      mappedProjects: [],
+      loading: true,
+      isTyping: true
+    };
     this._getSubjects = this._getSubjects.bind(this);
-    this.handleEndOfTyping = this.handleEndOfTyping.bind(this)
+    this.handleEndOfTyping = this.handleEndOfTyping.bind(this);
   }
 
   async _getSubjects() {
@@ -146,50 +151,64 @@ class AppIndex extends Component {
     this._getSubjects().then(() => this.setState({ loading: false }));
   }
 
-  handleEndOfTyping(){
-    this.setState({isTyping: false})
-    this.forceUpdate()
+  handleEndOfTyping() {
+    this.setState({ isTyping: false });
+    this.forceUpdate();
   }
 
   render() {
     if (!this.state.loading) {
       return (
         <div className="App">
-          <Box css={{transition: "width 0.5s, height 0.5s, opacity 0.5s 0.5s"}}>
-            
+          <Box
+            css={{ transition: "width 0.5s, height 0.5s, opacity 0.5s 0.5s" }}
+          >
             <FirebaseComponentDisplay
               user={this.props.user.displayName}
               image={this.props.user.photoURL}
               signOut={this.props.signOut}
               handleEndOfTyping={this.handleEndOfTyping}
             />
-            
+
             {!this.state.isTyping ? (
               <>
-              <Fade>  
-              <Text fontSize={3} css={{paddingBottom: 2}}>Your Projects:</Text>
-              <ProjectCard
-                projects={this.state.projects}
-                userID={this.props.user.uid}
-              />
-              </Fade>
-              <br />
-              <Fade>  
-              <NewProject userID={this.props.user.uid} />
-              </Fade>
-              
-              <Fade>  
-              <NewExpenditure
-                projects={this.state.projects}
-                userID={this.props.user.uid}
-              />
-              </Fade>
+                <Fade>
+                  <Text fontSize={3} css={{ paddingBottom: 2 }}>
+                    Your Projects:
+                  </Text>
+                  <Flex mx={-2}>
+                    <Box width={1 / 2} px={2}>
+                      <Text p={1} color="background" bg="primary">
+                        Half
+                      </Text>
+                    </Box>
+                    <Box width={1 / 2} px={2}>
+                      <Text p={1} color="background" bg="primary">
+                        Half
+                      </Text>
+                    </Box>
+                  </Flex>
+
+                  <ProjectCard
+                    projects={this.state.projects}
+                    userID={this.props.user.uid}
+                  />
+                </Fade>
+                <br />
+                <Fade>
+                  <NewProject userID={this.props.user.uid} />
+                </Fade>
+
+                <Fade>
+                  <NewExpenditure
+                    projects={this.state.projects}
+                    userID={this.props.user.uid}
+                  />
+                </Fade>
               </>
             ) : (
               <></>
             )}
-
-            
           </Box>
         </div>
       );

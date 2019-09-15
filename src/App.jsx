@@ -2,16 +2,21 @@ import React, { Component } from "react";
 import withFirebaseAuth from "react-with-firebase-auth";
 import * as firebase from "firebase";
 import "firebase/auth";
+import { Global, css } from "@emotion/core";
 import { ThemeProvider } from "emotion-theming";
-import { Button, Box } from "rebass";
+import { Button, Box, Text } from "rebass";
 import firebaseConfig from "./firebaseConfig.js";
 import { FirebaseComponentDisplay } from "./components/Firebase/FirebaseComponentDisplay";
 import { ImageUpload } from "./components/Firebase/ImageUpload";
 import { NewProject } from "./components/Projects/newProject";
-import { ProjectCard } from "./components/Projects/projectCard"
+import { ProjectCard } from "./components/Projects/projectCard";
 import { NewExpenditure } from "./pages/Expenses/newExpenditure";
+import { Dashboard } from "./pages/General/dashboard";
+import { LandingPage } from "./pages/General/landing";
 import { colors } from "./styles/colors";
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import { thisExpression } from "@babel/types";
+import Fade from 'react-reveal/Fade';
 
 const theme = {
   fontSizes: [12, 14, 16, 24, 32, 48, 64],
@@ -31,6 +36,16 @@ const theme = {
       color: "primary",
       bg: "transparent",
       boxShadow: "inset 0 0 0 2px"
+    },
+    minimal: {
+      color: "white",
+      bg: "transparent",
+      transition: "color 1s",
+      boxShadow: "inset 0 0 0 2px",
+      "&:hover": {
+        borderWidth: "9",
+        color: "blue3"
+      }
     }
   },
   forms: {
@@ -49,47 +64,6 @@ const theme = {
 
 const firebaseApp = firebase.initializeApp(firebaseConfig);
 
-class ImageViewer extends React.Component {
-  constructor(props) {
-    super(props);
-    this.props = props;
-    this.state = {
-      thing: "",
-      photoURLs: []
-    };
-    this.photoURLs = [];
-    this.getImagesFromFirebase = this.getImagesFromFirebase.bind(this);
-  }
-
-  getImagesFromFirebase = async () => {
-    var storageRef = firebase.storage().ref();
-    // Create a reference under which you want to list
-    var listRef = storageRef.child(this.props.userID + "/");
-
-    // Find all the prefixes and items.
-    listRef
-      .listAll()
-      .then(function(res) {
-        res.items.map(async function(thing) {
-          console.log(thing.location.path);
-          let itemRef = thing.location.path;
-          let storageItemRef = storageRef.child(itemRef);
-          let storageItemUrl = storageItemRef.getDownloadURL();
-          this.photoURLs.push(storageItemUrl);
-        });
-      })
-      .then(() => console.log(this.photoURLs))
-      .catch(function(error) {
-        // Uh-oh, an error occurred!
-      });
-  };
-
-  render() {
-    this.getImagesFromFirebase();
-    return <div></div>;
-  }
-}
-
 class App extends Component {
   constructor(props) {
     super(props);
@@ -100,20 +74,26 @@ class App extends Component {
     const { user, signOut, signInWithGoogle } = this.props;
 
     return (
-      <Router>
-        <Route
-          path="/"
-          exact
-          component={() => (
-            <AppIndex
-              user={user}
-              signOut={signOut}
-              signInWithGoogle={signInWithGoogle}
-            />
-          )}
-        />
-
-      </Router>
+      <ThemeProvider theme={theme}>
+        <Router>
+          <Global styles={{ borderRadius: 8 }} />
+          <Route
+            path="/"
+            exact
+            component={() =>
+              user ? (
+                <AppIndex
+                  user={user}
+                  signOut={signOut}
+                  signInWithGoogle={signInWithGoogle}
+                />
+              ) : (
+                <LandingPage signInWithGoogle={signInWithGoogle} />
+              )
+            }
+          />
+        </Router>
+      </ThemeProvider>
     );
   }
 }
@@ -128,96 +108,93 @@ export default withFirebaseAuth({
   providers,
   firebaseAppAuth
 })(App);
+
 class AppIndex extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-
-    }
-    this._getProjects = this._getProjects.bind(this)
-    this._getProjects()
+    this.state = { projects: [], mappedProjects: [], loading: true, isTyping: true };
+    this._getSubjects = this._getSubjects.bind(this);
+    this.handleEndOfTyping = this.handleEndOfTyping.bind(this)
   }
 
-  _getProjects = async ()=> {
-    // var db = await firebase.firestore();
-    // let coll = await db.collection(this.props.user.uid).get();
-
-    // this.setState({
-    //   projects: coll._snapshot.docChanges.map(project => {
-    //     return project.doc.proto.name
-    //       .split("/")
-    //       .slice(-2)
-    //       .join("/");
-    //   })
-    // });
-    // console.log(coll._snapshot.docChanges[0].doc.proto.name.split('/').slice(-1))
-    // console.log(this.state)
-    console.log(this.props.user)
+  async _getSubjects() {
+    var db = firebase.firestore();
+    let coll = await db.collection(this.props.user.uid).get();
+    coll._snapshot.docChanges.map(async project => {
+      let projectSplit = project.doc.proto.name
+        .split("/")
+        .slice(-2)
+        .join("/");
+      let projectF = projectSplit
+        .split("/")
+        .slice(-1)
+        .join("");
+      db.collection(this.props.user.uid)
+        .doc(projectF)
+        .get()
+        .then(thing => thing.data())
+        .then(data => {
+          console.log(data);
+          console.log(this.state);
+          this.state.projects.push(data);
+          this.forceUpdate();
+        });
+    });
   }
 
-  // UNSAFE_componentWillMount = async () => {
-  //   var db = await firebase.firestore();
-  //   let coll = await db.collection(this.props.user.uid).get();
+  UNSAFE_componentWillMount() {
+    this._getSubjects().then(() => this.setState({ loading: false }));
+  }
 
-  //   this.setState({
-  //     projects: coll._snapshot.docChanges.map(project => {
-  //       return project.doc.proto.name
-  //         .split("/")
-  //         .slice(-2)
-  //         .join("/");
-  //     })
-  //   });
-  //   console.log(coll._snapshot.docChanges[0].doc.proto.name.split('/').slice(-1))
-  //   console.log(this.state)
-  // }
+  handleEndOfTyping(){
+    this.setState({isTyping: false})
+    this.forceUpdate()
+  }
 
   render() {
-    return (
-      <ThemeProvider theme={theme}>
+    if (!this.state.loading) {
+      return (
         <div className="App">
-          <Box>
-            {this.props.user ? (
-              <FirebaseComponentDisplay
-                user={this.props.user.displayName}
-                image={this.props.user.photoURL}
-              />
-            ) : (
-              <p>Please sign in.</p>
-            )}
-            <br />
-            {this.props.user ? (
-              <Button mr={2} onClick={this.props.signOut}>
-                Sign out
-              </Button>
-            ) : (
-              <Button mr={2} onClick={this.props.signInWithGoogle}>
-                Sign in
-              </Button>
-            )}
-
-            {this.props.user ? (
-              <ImageUpload
+          <Box css={{transition: "width 0.5s, height 0.5s, opacity 0.5s 0.5s"}}>
+            
+            <FirebaseComponentDisplay
+              user={this.props.user.displayName}
+              image={this.props.user.photoURL}
+              signOut={this.props.signOut}
+              handleEndOfTyping={this.handleEndOfTyping}
+            />
+            
+            {!this.state.isTyping ? (
+              <>
+              <Fade>  
+              <Text fontSize={3} css={{paddingBottom: 2}}>Your Projects:</Text>
+              <ProjectCard
+                projects={this.state.projects}
                 userID={this.props.user.uid}
-                css={{ margin: "2rem" }}
               />
+              </Fade>
+              <br />
+              <Fade>  
+              <NewProject userID={this.props.user.uid} />
+              </Fade>
+              
+              <Fade>  
+              <NewExpenditure
+                projects={this.state.projects}
+                userID={this.props.user.uid}
+              />
+              </Fade>
+              </>
             ) : (
-              ""
+              <></>
             )}
-            {this.props.user ? <NewProject userID={this.props.user.uid} /> : ""}
 
-            {this.props.user ? (
-              <NewExpenditure userID={this.props.user.uid} />
-            ) : (
-              ""
-            )}
-            {this.props.user ? (
-              <ProjectCard userID = {this.props.user.uid}/>
-            ) : (
-              ""
-            )}
+            
           </Box>
         </div>
-      </ThemeProvider>
-    );
+      );
+    } else {
+      return <p>Loading...</p>;
+    }
   }
 }

@@ -33,7 +33,7 @@ export class ImageUpload extends Component {
     if(this.props.intent == "project"){
       const uploadTask = storageRef.child(`${this.props.userID}/${this.props.projectName}/projectImage.${file.name.split(".").slice(-1)}`).put(file)
     } else {
-      const uploadTask = storageRef.child(`${this.props.userID}/${this.props.projectName}/${this.props.expenseName}/expenseReceipt.${file.name.split(".").slice(-1)}`).put(file)
+      const uploadTask = storageRef.child(`${this.props.semiName}/${this.props.expenseName}/expenseReceipt.${file.name.split(".").slice(-1)}`).put(file)
     }
     reader.onloadend = () => {
       this.setState({
@@ -63,7 +63,7 @@ export class ImageUpload extends Component {
       <form onSubmit={this._handleSubmit}>
       <input type="file" id="file" ref="fileUploader" onChange={this._handleImageChange} style={{display: "none"}}/>
       
-      <Box><Button onClick={this.handleClick} css={{display:"inline-block"}}>{this.props.imageUploadText ? this.props.imageUploadText : "Upload Receipt"}</Button><Text css={{display:"inline-block", margin: "1rem"}}><Text fontWeight='bold' css={{display:"inline-block"}}>{this.state.file.name ? "File: " : ""}</Text> {this.state.file.name}</Text></Box>
+      <Box><Button type="button" onClick={this.handleClick} css={{display:"inline-block"}}>{this.props.imageUploadText ? this.props.imageUploadText : "Upload Receipt"}</Button><Text css={{display:"inline-block", margin: "1rem"}}><Text fontWeight='bold' css={{display:"inline-block"}}>{this.state.file.name ? "File: " : ""}</Text> {this.state.file.name}</Text></Box>
       </form>
       {$imagePreview}
     </Box>

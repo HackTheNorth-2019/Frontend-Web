@@ -1,30 +1,66 @@
-
-import { Card, Text, Image } from "rebass";
-import * as firebase from 'firebase'
+import { Box, Text, Image, Button } from "rebass";
+import * as firebase from "firebase";
 import React, { Component } from "react";
+import Fade from 'react-reveal/Fade';
 
 export class ProjectCard extends Component {
   constructor(props) {
     super(props);
-    this._getProjects = this._getProjects.bind(this);
+    this.props = props
+    this.state = { projects: [], mappedProjects: [] };
+    this.render = this.render.bind(this)
   }
 
-  async _getProjects() {
-    var db = firebase.firestore();
-    let coll = await db.collection(this.props.userID).get();
-console.log(coll)
-  }
+//   async _getData() {
+//     var db = await firebase.firestore();
+//     let mappedProjects = this.props.projects.map(async project => {
+//       console.log("e");
+//       let projectF = project
+//         .split("/")
+//         .slice(-1)
+//         .join("");
+//       let coll = await db
+//         .collection(this.props.userID)
+//         .doc(projectF)
+//         .get();
+//       console.log(coll.data());
+//     });
+//     this.setState({ mappedProjects: mappedProjects });
+//   }
 
-  UNSAFE_componentWillMount() {
-    this._getProjects();
-  }
-
+//   UNSAFE_componentWillReceiveProps() {
+//     this.render()
+//   }
+componentDidMount(){
+    if(!this.state.project){
+        this.forceUpdate()
+    }
+}
   render() {
     return (
-      <Card width={256}>
-        <Image src={this.props.image} />
-        <Text>{this.props.text}</Text>
-      </Card>
+      <Box
+        sx={{
+          display: "grid",
+          gridGap: 2,
+          gridTemplateColumns: "repeat(auto-fit, minmax(12rem, 3fr))",
+          mb: 2
+        }}
+      >
+        {this.props.projects.map(project => {
+          return (
+            <Fade>
+            <Box p={3} color="black1" bg="black3">
+              <Text textAlign="center" fontWeight={600} fontSize={4} >
+                  {project.name}
+              </Text>
+              <Image css={{objectFit: "contain"}} src={project.logoImage ? project.logoImage : ""}/>
+              <Text><strong>Budget:</strong> {project.budget}</Text>
+              <Text><strong>Deadline:</strong> {project.deadline}</Text>
+            </Box>
+            </Fade>
+          );
+        })}
+      </Box>
     );
   }
 }

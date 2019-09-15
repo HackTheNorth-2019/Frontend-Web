@@ -19,7 +19,7 @@ export class NewExpenditure extends Component {
     this.projects = [];
     console.log(this.props.userID);
     this._handleSubmit = this._handleSubmit.bind(this);
-    this._getProjects = this._getProjects.bind(this);
+    // this._getProjects = this._getProjects.bind(this);
   }
 
   async _handleSubmit() {
@@ -46,28 +46,28 @@ export class NewExpenditure extends Component {
       .set({recurring: this.state.recurring, receipt: this.state.receipt});
   }
 
-  async _getProjects() {
-    var db = firebase.firestore();
-    let coll = await db.collection(this.props.userID).get();
+//   async _getProjects() {
+//     var db = firebase.firestore();
+//     let coll = await db.collection(this.props.userID).get();
 
-    await this.setState({
-      projects: coll._snapshot.docChanges.map(project => {
-        return project.doc.proto.name
-          .split("/")
-          .slice(-2)
-          .join("/");
-      })
-    });
-    console.log(this.state);
-    console.log(coll._snapshot.docChanges[0].doc.proto.name.split('/').slice(-1))
-    await this.setState({
-        selectedProject: coll._snapshot.docChanges[0].doc.proto.name.split('/').slice(-1)
-    })
-  }
+//     await this.setState({
+//       projects: coll._snapshot.docChanges.map(project => {
+//         return project.doc.proto.name
+//           .split("/")
+//           .slice(-2)
+//           .join("/");
+//       })
+//     });
+//     console.log(this.state);
+//     console.log(coll._snapshot.docChanges[0].doc.proto.name.split('/').slice(-1))
+//     await this.setState({
+//         selectedProject: coll._snapshot.docChanges[0].doc.proto.name.split('/').slice(-1)
+//     })
+//   }
 
-  UNSAFE_componentWillMount() {
-    this._getProjects();
-  }
+//   UNSAFE_componentWillMount() {
+//     this._getProjects();
+//   }
 
   render() {
     return (
@@ -107,8 +107,8 @@ export class NewExpenditure extends Component {
                   console.log(this.state);
                 }}
               >
-                {this.state.projects.map(project => (
-                  <option>{project}</option>
+                {this.props.projects.map(project => (
+                  <option>{project.name}</option>
                 ))}
               </Select>
               <Label htmlFor="name">Name</Label>
@@ -151,7 +151,9 @@ export class NewExpenditure extends Component {
         </Flex>
         <ImageUpload
           userID={this.props.userID}
-          imageChangeCallback={(e, img) => this.setState({ receipt: e.name, receipt: img })}
+          semiName={this.state.selectedProject}
+          expenseName={this.state.name}
+          imageChangeCallback={(e, img, firebasePath) => this.setState({ receipt: e.name, receipt: img, receiptFirebasePath: firebasePath })}
         />
         <Button type="submit">Submit</Button>
       </Box>

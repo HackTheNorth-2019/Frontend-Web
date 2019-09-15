@@ -12,14 +12,15 @@ export class NewProject extends Component {
       name: "",
       deadline: "",
       currentExpenditure: "",
-      budget: ""
+      budget: "",
+      description: ""
     };
     this._handleSubmit = this._handleSubmit.bind(this)
   }
 
   async _handleSubmit(){
     var db = firebase.firestore();
-    await db.collection(this.props.userID).doc(this.state.name).set(this.state)
+    db.collection(this.props.userID).doc(this.state.name).set(this.state).then(()=>alert("done uploading."))
   }
 
   render() {
@@ -68,13 +69,22 @@ export class NewProject extends Component {
               onChange={e => this.setState({ name: e.target.value })}
             />
           </Box>
-          <Box width={(1 / 4, 1 / 2)} px={2}>
+          <Box width={1 / 4} px={2}>
             <Label htmlFor="name">Deadline</Label>
             <Input
               id="name"
               name="name"
               placeholder="MM/DD/YYYY"
               onChange={e => this.setState({ deadline: e.target.value })}
+            />
+          </Box>
+          <Box width={(1 / 4, 1 / 2)} px={2}>
+            <Label htmlFor="name">Description</Label>
+            <Input
+              id="name"
+              name="name"
+              placeholder="Description"
+              onChange={e => this.setState({ description: e.target.value })}
             />
           </Box>
         </Flex>
@@ -110,6 +120,7 @@ export class NewProject extends Component {
               onChange={e => this.setState({ budget: e.target.value })}
             />
           </Box>
+          
           
         </Flex>
         <Button type="submit">Submit</Button>
